@@ -179,7 +179,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main
           git checkout main
-          sed -i 's/<version>/${{ needs.version.outputs.version }}/g' README.md
+          sed -i 's|releases/download/v[0-9]\+\.[0-9]\+\.[0-9]\+|releases/download/v${{ needs.version.outputs.version }}|g' README.md
           git add README.md
           git commit -m "chore: update README for v${{ needs.version.outputs.version }}" || echo "No changes to commit"
           git push origin main
