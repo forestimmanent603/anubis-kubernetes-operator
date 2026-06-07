@@ -1,0 +1,66 @@
+apiVersion: anubis.techaro.dev/v1alpha1
+kind: AnubisProxy
+metadata:
+  name: forgejo
+spec:
+  target:
+    service:
+      name: forgejo
+      port: 80
+
+  # Canonical external URL Anubis should use for redirects and generated links.
+  publicURL: https://git.example.com
+
+  anubis:
+    # For the full upstream runtime configuration surface, see:
+    # https://anubis.techaro.lol/docs/admin/installation/
+    # Use envExtra for settings that are not exposed as first-class chart values.
+    replicas: 2
+    port: 8923
+    metrics:
+      enabled: true
+      port: 9090
+      service:
+        enabled: true
+        type: ClusterIP
+        port: 9090
+        annotations:
+          prometheus.io/scrape: "true"
+          prometheus.io/port: "9090"
+        labels: {}
+    keys:
+      existingSecret: forgejo-anubis-keys
+    config: |
+      rules:
+        - path: /login
+          rateLimit: 5
+        - path: /api/v1/internal
+          action: block
+    # envExtra:
+    #   - name: REDIRECT_DOMAINS
+    #     value: git.example.com
+    #   - name: SLOG_LEVEL
+    #     value: INFO
+
+  networkPolicy:
+    enabled: true
+    metrics:
+      # Example selectors for Prometheus. Adjust to match your cluster labels.
+      from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+
+  ingress:
+    enabled: false
+
+  gateway:
+    enabled: true
+    parentRefs:
+      - name: public-gateway
+        namespace: ingress-system
+    hostnames:
+      - git.example.com

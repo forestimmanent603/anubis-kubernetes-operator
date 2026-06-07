@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "anubis.fullname" . }}
+  labels:
+    {{- include "anubis.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.anubis.replicas | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "anubis.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- if .Values.anubis.config }}
+      annotations:
+        {{- if .Values.anubis.config }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- end }}
+      {{- end }}
+      labels:
+        {{- include "anubis.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.anubis.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: anubis
+          image: "{{ .Values.anubis.image.repository }}:{{ .Values.anubis.image.tag }}"
+          imagePullPolicy: {{ .Values.anubis.image.pullPolicy | default "IfNotPresent" }}
+          {{- with .Values.anubis.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- $target := printf "http://%s.%s.svc.cluster.local:%v" .Values.target.service.name .Release.Namespace .Values.target.service.port }}
+          env:
+            - name: TARGET
+              value: {{ default $target .Values.anubis.targetOverride | quote }}
+            - name: BIND
+              value: {{ printf ":%v" .Values.anubis.port | quote }}
+            {{- if .Values.anubis.metrics.enabled }}
+            - name: METRICS_BIND
+              value: {{ printf ":%v" .Values.anubis.metrics.port | quote }}
+            {{- end }}
+            {{- if .Values.publicURL }}
+            - name: PUBLIC_URL
+              value: {{ .Values.publicURL | quote }}
+            {{- end }}
+            {{- if or .Values.anubis.config .Values.anubis.existingConfigMap }}
+            - name: POLICY_FNAME
+              value: {{ .Values.anubis.policyFile | quote }}
+            {{- end }}
+            {{- if .Values.anubis.keys.existingSecret }}
+            - name: ED25519_PRIVATE_KEY_HEX
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.anubis.keys.existingSecret }}
+                  key: ED25519_PRIVATE_KEY_HEX
+            {{- end }}
+            {{- with .Values.anubis.envExtra }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.anubis.port }}
+            {{- if .Values.anubis.metrics.enabled }}
+            - name: metrics
+              containerPort: {{ .Values.anubis.metrics.port }}
+            {{- end }}
+          {{- with .Values.anubis.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if or .Values.anubis.config .Values.anubis.existingConfigMap }}
+          volumeMounts:
+            - name: anubis-policy
+              mountPath: {{ dir .Values.anubis.policyFile | quote }}
+              readOnly: true
+          {{- end }}
+      {{- if or .Values.anubis.config .Values.anubis.existingConfigMap }}
+      volumes:
+        - name: anubis-policy
+          configMap:
+            name: {{ if .Values.anubis.config }}{{ include "anubis.fullname" . }}-policy{{ else }}{{ .Values.anubis.existingConfigMap }}{{ end }}
+      {{- end }}

@@ -1,0 +1,106 @@
+nameOverride: ""
+fullnameOverride: ""
+
+## Backend Service Anubis should protect.
+target:
+  service:
+    name: ""
+    port: 80
+
+# Canonical external URL Anubis should use for redirects and generated links.
+# This maps directly to the upstream PUBLIC_URL setting.
+publicURL: ""
+
+anubis:
+  image:
+    repository: ghcr.io/techarohq/anubis
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicas: 1
+  # Container port exposed by the Anubis HTTP server.
+  port: 8923
+  metrics:
+    # Enable the Anubis metrics endpoint inside the pod.
+    enabled: true
+    port: 9090
+    service:
+      # Expose metrics on a dedicated Service for Prometheus scraping.
+      enabled: false
+      type: ClusterIP
+      port: 9090
+      annotations: {}
+      labels: {}
+  # Override the computed backend URL when TARGET needs a custom value.
+  targetOverride: ""
+  # Mount path for inline or existing ConfigMap policy files.
+  policyFile: /etc/anubis/botPolicies.yaml
+  # Extra environment variables passed directly to the Anubis container.
+  # https://anubis.techaro.lol/docs/admin/configuration/redirect-domains
+  #
+  envExtra:
+    - name: DIFFICULTY
+      value: "4"
+    - name: SERVE_ROBOTS_TXT
+      value: "true"
+    - name: OG_PASSTHROUGH
+      value: "true"
+    - name: OG_EXPIRY_TIME
+      value: 24h
+  keys:
+    # Secret containing ED25519_PRIVATE_KEY_HEX.
+    existingSecret: ""
+  # configs
+  # https://anubis.techaro.lol/docs/admin/installation#configuration
+  # Inline botPolicies.yaml content.
+  config: ""
+  # Existing ConfigMap providing botPolicies.yaml.
+  existingConfigMap: ""
+  resources:
+    limits:
+      cpu: 750m
+      memory: 256Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+service:
+  # Main HTTP Service exposed to Ingress or Gateway backends.
+  type: ClusterIP
+  port: 80
+
+networkPolicy:
+  # Allow HTTP ingress by default when enabled. Metrics stay closed unless
+  # networkPolicy.metrics.from is configured.
+  enabled: false
+  metrics:
+    # Standard NetworkPolicy peers allowed to reach the metrics port.
+    from: []
+
+ingress:
+  # Create an Ingress that points to the main Anubis Service.
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: ""
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+gateway:
+  # Create an HTTPRoute that points to the main Anubis Service.
+  enabled: false
+  parentRefs:
+  hostnames:

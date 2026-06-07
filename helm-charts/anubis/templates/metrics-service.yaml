@@ -1,0 +1,24 @@
+{{- if and .Values.anubis.metrics.enabled .Values.anubis.metrics.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "anubis.fullname" . }}-metrics
+  labels:
+    {{- include "anubis.labels" . | nindent 4 }}
+    {{- if .Values.anubis.metrics.service.labels }}
+    {{- toYaml .Values.anubis.metrics.service.labels | nindent 4 }}
+    {{- end }}
+  {{- if .Values.anubis.metrics.service.annotations }}
+  annotations:
+    {{- toYaml .Values.anubis.metrics.service.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.anubis.metrics.service.type }}
+  ports:
+    - port: {{ .Values.anubis.metrics.service.port }}
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+  selector:
+    {{- include "anubis.selectorLabels" . | nindent 4 }}
+{{- end }}

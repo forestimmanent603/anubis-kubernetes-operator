@@ -1,0 +1,6 @@
+# Use the 'create api' subcommand to add watches to this file.
+- group: anubis.techaro.dev
+  version: v1alpha1
+  kind: AnubisProxy
+  chart: helm-charts/anubis
+# +kubebuilder:scaffold:watch

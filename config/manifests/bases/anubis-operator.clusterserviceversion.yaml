@@ -1,0 +1,78 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "anubis.techaro.dev/v1alpha1",
+          "kind": "AnubisProxy",
+          "metadata": {
+            "name": "forgejo"
+          },
+          "spec": {
+            "target": {
+              "service": {
+                "name": "forgejo",
+                "port": 80
+              }
+            },
+            "publicURL": "https://git.example.com",
+            "anubis": {
+              "replicas": 2,
+              "keys": {
+                "existingSecret": "forgejo-anubis-keys"
+              },
+              "config": "rules:\n  - path: /login\n    rateLimit: 5\n  - path: /api/v1/internal\n    action: block\n"
+            },
+            "gateway": {
+              "enabled": true,
+              "parentRefs": [
+                {
+                  "name": "public-gateway",
+                  "namespace": "ingress-system"
+                }
+              ],
+              "hostnames": [
+                "git.example.com"
+              ]
+            }
+          }
+        }
+      ]
+    capabilities: Basic Install
+  name: anubis-operator.v0.1.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions: {}
+  description: Deploy and manage Anubis proxy instances with a single AnubisProxy custom resource backed by a Helm chart.
+  displayName: Anubis Operator
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - anubis
+  - kubernetes
+  - operator
+  - gateway-api
+  links:
+  - name: Anubis Operator
+    url: https://techaro.dev
+  maintainers:
+  - name: Bruno Bernard
+  maturity: alpha
+  provider:
+    name: Techaro
+    url: https://techaro.dev
+  version: 0.1.0

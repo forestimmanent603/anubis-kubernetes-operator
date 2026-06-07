@@ -1,0 +1,11 @@
+{{- if .Values.anubis.config }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "anubis.fullname" . }}-policy
+  labels:
+    {{- include "anubis.labels" . | nindent 4 }}
+data:
+  botPolicies.yaml: |
+{{ .Values.anubis.config | indent 4 }}
+{{- end }}

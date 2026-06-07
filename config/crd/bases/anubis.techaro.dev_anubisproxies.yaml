@@ -1,0 +1,234 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: anubisproxies.anubis.techaro.dev
+spec:
+  group: anubis.techaro.dev
+  names:
+    kind: AnubisProxy
+    listKind: AnubisProxyList
+    plural: anubisproxies
+    singular: anubisproxy
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: AnubisProxy is the Schema for the anubisproxies API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: Spec defines the desired state of AnubisProxy
+            properties:
+              anubis:
+                properties:
+                  config:
+                    type: string
+                  envExtra:
+                    items:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    type: array
+                  existingConfigMap:
+                    type: string
+                  image:
+                    properties:
+                      pullPolicy:
+                        type: string
+                      repository:
+                        type: string
+                      tag:
+                        type: string
+                    type: object
+                  keys:
+                    properties:
+                      existingSecret:
+                        type: string
+                    type: object
+                  metrics:
+                    properties:
+                      enabled:
+                        type: boolean
+                      port:
+                        format: int32
+                        minimum: 1
+                        type: integer
+                      service:
+                        properties:
+                          annotations:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          enabled:
+                            type: boolean
+                          labels:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          port:
+                            format: int32
+                            minimum: 1
+                            type: integer
+                          type:
+                            type: string
+                        type: object
+                    type: object
+                  policyFile:
+                    type: string
+                  port:
+                    format: int32
+                    minimum: 1
+                    type: integer
+                  replicas:
+                    format: int32
+                    minimum: 1
+                    type: integer
+                  resources:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  securityContext:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  targetOverride:
+                    type: string
+                type: object
+              fullnameOverride:
+                type: string
+              gateway:
+                properties:
+                  enabled:
+                    type: boolean
+                  hostnames:
+                    items:
+                      type: string
+                    type: array
+                  parentRefs:
+                    items:
+                      properties:
+                        group:
+                          type: string
+                        kind:
+                          type: string
+                        name:
+                          minLength: 1
+                          type: string
+                        namespace:
+                          type: string
+                        port:
+                          format: int32
+                          minimum: 1
+                          type: integer
+                        sectionName:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                type: object
+              ingress:
+                properties:
+                  annotations:
+                    additionalProperties:
+                      type: string
+                    type: object
+                  className:
+                    type: string
+                  enabled:
+                    type: boolean
+                  hosts:
+                    items:
+                      properties:
+                        host:
+                          type: string
+                        paths:
+                          items:
+                            properties:
+                              path:
+                                type: string
+                              pathType:
+                                type: string
+                            required:
+                            - path
+                            type: object
+                          type: array
+                      type: object
+                    type: array
+                  tls:
+                    items:
+                      properties:
+                        hosts:
+                          items:
+                            type: string
+                          type: array
+                        secretName:
+                          type: string
+                      type: object
+                    type: array
+                type: object
+              nameOverride:
+                type: string
+              networkPolicy:
+                properties:
+                  enabled:
+                    type: boolean
+                  metrics:
+                    properties:
+                      from:
+                        items:
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                        type: array
+                    type: object
+                type: object
+              publicURL:
+                type: string
+              service:
+                properties:
+                  port:
+                    format: int32
+                    minimum: 1
+                    type: integer
+                  type:
+                    type: string
+                type: object
+              target:
+                properties:
+                  service:
+                    properties:
+                      name:
+                        minLength: 1
+                        type: string
+                      port:
+                        format: int32
+                        minimum: 1
+                        type: integer
+                    required:
+                    - name
+                    type: object
+                required:
+                - service
+                type: object
+            required:
+            - target
+            type: object
+          status:
+            description: Status defines the observed state of AnubisProxy
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
