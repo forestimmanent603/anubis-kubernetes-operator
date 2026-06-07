@@ -11,7 +11,7 @@ kubectl apply -f \
 
 This installs:
 - the `AnubisProxy` CRD
-- the operator namespace at `anubis-operator-system`
+- `anubis-operator-system` namespace
 - operator RBAC
 - the controller
 
@@ -23,7 +23,7 @@ Apply the newer release manifest:
 
 ```bash
 kubectl apply -f \
-  "https://github.com/eznix86/anubis-kubernetes-operator/releases/download/v0.1.0/install.yaml"
+  "https://github.com/eznix86/anubis-kubernetes-operator/releases/download/v<version>/install.yaml"
 ```
 
 This updates the installed operator to the selected release version.
@@ -41,7 +41,7 @@ Uninstalling the operator removes the controller and its resources.
 
 After the operator is installed, apply an `AnubisProxy` resource.
 
-For the full values reference used by the operator chart, see [helm-charts/anubis/README.md](helm-charts/anubis/README.md).
+For the full values reference used by the operator spec, see [specs here](helm-charts/anubis/README.md).
 
 Before creating an `AnubisProxy`, create the Anubis signing key Secret:
 
@@ -49,13 +49,14 @@ For example:
 
 ```bash
 kubectl create secret generic anubis-key \
-  --namespace default \
+  --namespace app \
   --from-literal=ED25519_PRIVATE_KEY_HEX="$(openssl rand -hex 32)"
 ```
 
-Update the namespace and secret name to match your `AnubisProxy` manifest.
+> [!NOTE]
+> The controller will not use this key. So the key should be created where the `AnubisProxy` is located.
 
-To pin a specific Anubis runtime version per `AnubisProxy`, choose a tag from:
+To pin a specific Anubis runtime version (`spec.anubis.image.tag` default is `latest`) per `AnubisProxy`, choose a tag from:
 
 - https://github.com/TecharoHQ/anubis/tags
 
@@ -99,15 +100,14 @@ spec:
         secretName: example-tls
 ```
 
-1. Install the operator with the release `install.yaml`.
-2. Create any prerequisite Secrets or backend Services your proxy needs.
-3. Apply an `AnubisProxy` manifest.
-4. The operator will do the rest.
+Apply an `AnubisProxy` manifest.
 
-See:
+The operator will do the rest.
 
-- `config/samples/anubis_v1alpha1_anubisproxy.yaml`
-- `config/samples/anubis_v1alpha1_anubisproxy_k3s_dev_echo.yaml`
+Examples:
+
+- [config/samples/anubis_v1alpha1_anubisproxy.yaml](config/samples/anubis_v1alpha1_anubisproxy.yaml)
+- [config/samples/anubis_v1alpha1_anubisproxy_k3s_dev_echo.yaml](config/samples/anubis_v1alpha1_anubisproxy_k3s_dev_echo.yaml)
 
 ## License
 
