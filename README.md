@@ -56,7 +56,7 @@ kubectl create secret generic anubis-key \
 ```
 
 > [!NOTE]
-> The controller will not use this key. So the key should be created where the `AnubisProxy` is located.
+> The controller will not use this key. So the key should be created where the `AnubisProxy` is located (same namespace).
 
 To pin a specific Anubis runtime version (`spec.anubis.image.tag` default is `latest`) per `AnubisProxy`, choose a tag from:
 
@@ -68,41 +68,53 @@ kind: AnubisProxy
 metadata:
   name: app
   namespace: app
+
 spec:
+  # Select an SVC you want to proxy
   target:
     service:
       name: app-service
       port: 80
+
   anubis:
+    # Used a configMap for your custom Policies
     existingConfigMap: anubis-policy
     keys:
       existingSecret: anubis-key
+
     envExtra:
       - name: DIFFICULTY
         value: "4"
+
       - name: SERVE_ROBOTS_TXT
         value: "true"
+
       - name: OG_PASSTHROUGH
         value: "true"
+
       - name: OG_EXPIRY_TIME
         value: 24h
+
       - name: REDIRECT_DOMAINS
         value: "example.com"
 
+  # You may also use gateway api
   ingress:
     enabled: true
+
     hosts:
       - host: example.com
         paths:
           - path: /
             pathType: Prefix
+
     tls:
       - hosts:
           - example.com
         secretName: example-tls
 ```
 
-Apply an `AnubisProxy` manifest.
+Apply the `AnubisProxy` manifest.
 
 The operator will do the rest.
 
