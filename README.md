@@ -1,5 +1,7 @@
 # Anubis Firewall Kubernetes Operator
 
+![TecharoHQ Logo](https://raw.githubusercontent.com/TecharoHQ/anubis/main/web/static/img/happy.webp)
+
 Kubernetes operator for managing [Anubis](https://github.com/TecharoHQ/anubis) Firewall proxies with the `AnubisProxy` custom resource.
 
 ## Install
@@ -112,3 +114,7 @@ Examples:
 ## License
 
 [MIT](LICENSE)
+
+## Credits
+
+The logo is owned by TecharoHQ. 
