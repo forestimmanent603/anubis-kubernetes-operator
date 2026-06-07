@@ -1,6 +1,6 @@
-# Anubis AI Firewall Kubernetes Operator
+# Anubis Firewall Kubernetes Operator
 
-Kubernetes operator for managing [Anubis](https://github.com/TecharoHQ/anubis) AI Firewall proxies with the `AnubisProxy` custom resource.
+Kubernetes operator for managing [Anubis](https://github.com/TecharoHQ/anubis) Firewall proxies with the `AnubisProxy` custom resource.
 
 ## Install
 
