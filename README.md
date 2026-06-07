@@ -64,29 +64,39 @@ apiVersion: anubis.techaro.dev/v1alpha1
 kind: AnubisProxy
 metadata:
   name: app
-  namespace: default
+  namespace: app
 spec:
   target:
     service:
-      name: app
+      name: app-service
       port: 80
-
-  publicURL: https://app.example.com
-
   anubis:
-    image:
-      tag: latest
+    existingConfigMap: anubis-policy
     keys:
       existingSecret: anubis-key
+    envExtra:
+      - name: DIFFICULTY
+        value: "4"
+      - name: SERVE_ROBOTS_TXT
+        value: "true"
+      - name: OG_PASSTHROUGH
+        value: "true"
+      - name: OG_EXPIRY_TIME
+        value: 24h
+      - name: REDIRECT_DOMAINS
+        value: "example.com"
 
   ingress:
     enabled: true
-    className: nginx
     hosts:
-      - host: app.example.com
+      - host: example.com
         paths:
           - path: /
             pathType: Prefix
+    tls:
+      - hosts:
+          - example.com
+        secretName: example-tls
 ```
 
 1. Install the operator with the release `install.yaml`.

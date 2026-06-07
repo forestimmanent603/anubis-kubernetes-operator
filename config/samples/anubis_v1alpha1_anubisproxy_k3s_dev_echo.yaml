@@ -9,9 +9,6 @@ spec:
       name: echo
       port: 80
 
-  # Canonical external URL Anubis should use for redirects and generated links.
-  publicURL: https://echo.192.168.139.24.nip.io
-
   anubis:
     keys:
       existingSecret: anubis-key

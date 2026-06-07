@@ -8,9 +8,6 @@ spec:
       name: forgejo
       port: 80
 
-  # Canonical external URL Anubis should use for redirects and generated links.
-  publicURL: https://git.example.com
-
   anubis:
     # For the full upstream runtime configuration surface, see:
     # https://anubis.techaro.lol/docs/admin/installation/
