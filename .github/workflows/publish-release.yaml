@@ -173,6 +173,19 @@ jobs:
           path: install.yaml
           if-no-files-found: error
 
+      - name: Update README on main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          sed -i 's/<version>/${{ needs.version.outputs.version }}/g' README.md
+          git add README.md
+          git commit -m "chore: update README for v${{ needs.version.outputs.version }}" || echo "No changes to commit"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
