@@ -77,7 +77,7 @@ spec:
       port: 80
 
   anubis:
-    # Used a configMap for your custom Policies
+    # Use a configMap for your custom Policies
     existingConfigMap: anubis-policy
     keys:
       existingSecret: anubis-key
